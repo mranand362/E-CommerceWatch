@@ -1,5 +1,5 @@
 // frontend/src/services/api.js
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Helper function for API calls
 const apiRequest = async (endpoint, method = 'GET', data = null, token = null) => {
