@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);  // ✅ Auth loading state
   const [token, setToken] = useState(null);
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'http://e-commercewatch.onrender.com/api';
 
   // ✅ CRITICAL: Rehydrate user from token on app load
   useEffect(() => {

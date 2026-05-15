@@ -190,7 +190,7 @@ const CartPage = () => {
         const token = localStorage.getItem("token");
         
         const { data } = await axios.get(
-          "http://localhost:5000/api/cart",
+          "http://e-commercewatch.onrender.com/api/cart",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -220,7 +220,7 @@ const CartPage = () => {
       const token = localStorage.getItem("token");
       
       await axios.put(
-        `http://localhost:5000/api/cart/${productId}`,
+        `http://e-commercewatch.onrender.com/api/cart/${productId}`,
         { quantity: newQuantity },
         {
           headers: {
@@ -246,7 +246,7 @@ const CartPage = () => {
       const token = localStorage.getItem("token");
       
       await axios.delete(
-        `http://localhost:5000/api/cart/${productId}`,
+        `http://e-commercewatch.onrender.com/api/cart/${productId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -267,13 +267,13 @@ const CartPage = () => {
       try {
         const token = localStorage.getItem("token");
         
-        const { data } = await axios.get("http://localhost:5000/api/cart", {
+        const { data } = await axios.get("http://e-commercewatch.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
         for (const item of data.items) {
           const productId = item.product?._id || item.product;
-          await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+          await axios.delete(`http://e-commercewatch.onrender.com/api/cart/${productId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
         }

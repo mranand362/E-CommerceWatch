@@ -179,7 +179,7 @@ const MyOrders = () => {
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'http://e-commercewatch.onrender.com/api';
 
   const getImageSrc = (imagePath) => {
     if (!imagePath) return DEFAULT_IMAGE;
