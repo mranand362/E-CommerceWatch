@@ -1,4 +1,4 @@
-// frontend/src/config/api.js
-const API_URL = 'http://localhost:5000/api';
+// 🔥 Production Backend (Render)
+const API_URL = 'https://e-commercewatch.onrender.com/api';
 
 export default API_URL;

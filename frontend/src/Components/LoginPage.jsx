@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import axios from "axios";
+import API from "../api";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -28,8 +28,8 @@ const LoginPage = () => {
         for (const item of items) {
           try {
             const productId = item.product?._id || item.product?.id || item.id;
-            await axios.post(
-              "http://localhost:5000/api/cart",
+            await API.post(
+              "/cart",
               { productId, quantity: item.quantity },
               { headers: { Authorization: `Bearer ${token}` } }
             );
