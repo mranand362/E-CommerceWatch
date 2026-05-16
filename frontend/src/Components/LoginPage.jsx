@@ -1,8 +1,7 @@
 // src/Components/LoginPage.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
-import API from "../api";
+import { useAuth } from "../context/useAuth"; // ✅ Import from useAuth.js, NOT AuthContext.jsx
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -17,32 +16,29 @@ const LoginPage = () => {
     setError("");
     
     try {
-      await login(formData.email, formData.password);
-      
-      // Sync guest cart to backend after login
-      const guestCart = localStorage.getItem("cart");
+      // Clean up any invalid cart data before login
+      const guestCart = localStorage.getItem('cart');
       if (guestCart) {
-        const items = JSON.parse(guestCart);
-        const token = localStorage.getItem("token");
-        
-        for (const item of items) {
-          try {
-            const productId = item.product?._id || item.product?.id || item.id;
-            await API.post(
-              "/cart",
-              { productId, quantity: item.quantity },
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-          } catch (err) {
-            console.error("Failed to sync item:", err);
+        try {
+          const items = JSON.parse(guestCart);
+          const hasInvalidItems = items.some(item => {
+            return item.product?.id && typeof item.product.id === 'number';
+          });
+          
+          if (hasInvalidItems) {
+            console.log('Clearing cart with numeric product IDs');
+            localStorage.removeItem('cart');
           }
+        } catch (parseError) {
+          console.error('Error parsing cart:', parseError);
+          localStorage.removeItem('cart');
         }
-        localStorage.removeItem("cart");
       }
       
+      await login(formData.email, formData.password);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
+      setError(err.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft, CreditCard, Truck, Shield, Gift } from "lucide-react";
-import axios from "axios";
+import { getCart, updateCartItem, removeFromCart, clearCart, validatePromoCode } from "../services/api";
 
 // Import all images
 import R1 from "../assets/R1.png";
@@ -189,14 +189,8 @@ const CartPage = () => {
         setIsLoading(true);
         const token = localStorage.getItem("token");
         
-        const { data } = await axios.get(
-          "http://e-commercewatch.onrender.com/api/cart",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // Using API service
+        const data = await getCart(token);
         
         setCartItems(Array.isArray(data?.items) ? data.items : []);
       } catch (error) {
@@ -219,15 +213,7 @@ const CartPage = () => {
     try {
       const token = localStorage.getItem("token");
       
-      await axios.put(
-        `http://e-commercewatch.onrender.com/api/cart/${productId}`,
-        { quantity: newQuantity },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await updateCartItem(productId, newQuantity, token);
       
       setCartItems(prev =>
         prev.map(item =>
@@ -245,14 +231,7 @@ const CartPage = () => {
     try {
       const token = localStorage.getItem("token");
       
-      await axios.delete(
-        `http://e-commercewatch.onrender.com/api/cart/${productId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await removeFromCart(productId, token);
       
       setCartItems(prev => prev.filter(item => 
         item.product?._id !== productId && item.product !== productId
@@ -262,24 +241,14 @@ const CartPage = () => {
     }
   };
 
-  const clearCart = async () => {
+  const handleClearCart = async () => {
     if (window.confirm("Are you sure you want to clear your entire cart?")) {
       try {
         const token = localStorage.getItem("token");
         
-        const { data } = await axios.get("http://e-commercewatch.onrender.com/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        for (const item of data.items) {
-          const productId = item.product?._id || item.product;
-          await axios.delete(`http://e-commercewatch.onrender.com/api/cart/${productId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-        }
+        await clearCart(token);
         
         setCartItems([]);
-        localStorage.removeItem("cart");
       } catch (error) {
         console.log("Error clearing cart:", error);
       }
@@ -287,25 +256,14 @@ const CartPage = () => {
   };
 
   const applyPromoCode = () => {
-    const code = promoCode.toUpperCase();
-    if (code === "WELCOME10") {
-      setDiscount(10);
-      setPromoSuccess("10% discount applied successfully!");
-      setPromoError("");
-    } else if (code === "LUXURY20") {
-      setDiscount(20);
-      setPromoSuccess("20% discount applied successfully!");
-      setPromoError("");
-    } else if (code === "FREESHIP") {
-      setDiscount(0);
-      setPromoSuccess("Free shipping applied!");
-      setPromoError("");
-    } else if (code === "LUXURY50") {
-      setDiscount(50);
-      setPromoSuccess("50% discount applied successfully!");
+    const result = validatePromoCode(promoCode);
+    
+    if (result.valid) {
+      setDiscount(result.discount);
+      setPromoSuccess(`${result.discount}% discount applied successfully!`);
       setPromoError("");
     } else {
-      setPromoError("Invalid promo code");
+      setPromoError(result.message || "Invalid promo code");
       setPromoSuccess("");
     }
     setPromoCode("");
@@ -371,7 +329,7 @@ const CartPage = () => {
     return item?.product || item || {};
   };
 
-  // ✅ Loading State
+  // Loading State
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
@@ -383,7 +341,7 @@ const CartPage = () => {
     );
   }
 
-  // ✅ Empty Cart State (only after loading completes)
+  // Empty Cart State
   if (!isLoading && cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-[#f5f5f5] py-12 px-4">
@@ -409,7 +367,7 @@ const CartPage = () => {
     );
   }
 
-  // ✅ Main Cart Display
+  // Main Cart Display
   return (
     <div className="min-h-screen bg-[#f5f5f5] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -434,7 +392,7 @@ const CartPage = () => {
             </div>
             
             <button
-              onClick={clearCart}
+              onClick={handleClearCart}
               className="text-sm text-red-500 hover:text-red-700 transition flex items-center gap-1"
             >
               <Trash2 className="w-4 h-4" />
@@ -523,7 +481,7 @@ const CartPage = () => {
                         {item.quantity > 1 && (
                           <p className="text-xs text-gray-400">
                             {formatPrice(itemPrice)} each
-          </p>
+                          </p>
                         )}
                       </div>
                     </div>

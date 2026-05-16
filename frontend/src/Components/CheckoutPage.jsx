@@ -274,7 +274,7 @@ const CheckoutPage = () => {
       console.log("📦 Order Data:", orderData);
       
       const response = await axios.post(
-        "http://e-commercewatch.onrender.com/api/orders",
+        "https://e-commercewatch.onrender.com/api/orders",
         orderData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

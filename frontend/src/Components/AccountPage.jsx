@@ -216,7 +216,7 @@ const AccountPage = () => {
   const hasFetchedUser = useRef(false);
   const hasFetchedOrders = useRef(false);
   const hasFetchedWishlist = useRef(false);
-  const API_URL = 'http://e-commercewatch.onrender.com/api';
+  const API_URL = 'https://e-commercewatch.onrender.com/api';
 
   const getImageSrc = (imagePath) => {
     if (!imagePath) return DEFAULT_IMAGE;

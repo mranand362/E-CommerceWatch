@@ -1,4 +1,4 @@
-// App.jsx
+// src/App.jsx
 import Home from "./Pages/Home";
 import AboutUs from "./Components/AboutUs";
 import BrandPage from "./Components/BrandPage";
@@ -12,7 +12,7 @@ import NewArrival from "./Components/NewArrival";
 import CartPage from "./Components/CartPage";
 import CategoriesHome from "./Components/CategoriesHome";
 import AccountPage from "./Components/AccountPage";
-import { useAuth } from "./context/useAuth";
+import { useAuth } from "./context/useAuth"; // ✅ Import from useAuth.js
 import MyOrders from "./Components/MyOrders";
 
 import {
@@ -37,12 +37,12 @@ function ScrollToTopOnRouteChange() {
   return null;
 }
 
-// ✅ Improved ProtectedRoutes with loading state
+// Protected Routes with loading state
 function ProtectedRoutes({ children }) {
-  const { token, authLoading } = useAuth();
+  const { token, loading } = useAuth();
   
   // Show loading while checking auth
-  if (authLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -60,12 +60,12 @@ function ProtectedRoutes({ children }) {
   return children;
 }
 
-// ✅ Improved GuestRoutes with loading state
+// Guest Routes with loading state
 function GuestRoutes({ children }) {
-  const { token, authLoading } = useAuth();
+  const { token, loading } = useAuth();
   
   // Show loading while checking auth
-  if (authLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -99,26 +99,16 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/cart" element={<CartPage />} />
 
-        {/* Guest Only Routes (for non-logged in users) */}
+        {/* Guest Only Routes */}
         <Route path="/login" element={<GuestRoutes><LoginPage /></GuestRoutes>} />
         <Route path="/signup" element={<GuestRoutes><SignupPage /></GuestRoutes>} />
 
-        {/* Protected Routes (require login) */}
+        {/* Protected Routes */}
         <Route path="/account" element={<ProtectedRoutes><AccountPage /></ProtectedRoutes>} />
         <Route path="/checkout" element={<ProtectedRoutes><CheckoutPage /></ProtectedRoutes>} />
         <Route path="/order-confirmation" element={<ProtectedRoutes><OrderConfirmationPage /></ProtectedRoutes>} />
-
-          {/* ✅ FIXED: orders route moved inside Routes */}
-  <Route 
-    path="/orders"
-    element={
-      <ProtectedRoutes>
-        <MyOrders />
-      </ProtectedRoutes>
-    }
-  />
+        <Route path="/orders" element={<ProtectedRoutes><MyOrders /></ProtectedRoutes>} />
       </Routes>
- 
     </div>
   );
 }

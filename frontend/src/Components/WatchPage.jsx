@@ -16,7 +16,7 @@ const WatchPage = () => {
   const [addedToCart, setAddedToCart] = useState({});
   const [dbProducts, setDbProducts] = useState([]);
 
-  const API_URL = 'http://e-commercewatch.onrender.com/api';
+  const API_URL = 'https://e-commercewatch.onrender.com/api';
 
   // Load database products for ID mapping
   useEffect(() => {

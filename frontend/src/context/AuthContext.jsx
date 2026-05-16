@@ -1,86 +1,85 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { loginUser, registerUser, syncGuestCart } from '../services/api';
 
-const AuthContext = createContext();
+// Create context
+const AuthContext = createContext(null);
 
+// Auth Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);  // ✅ Auth loading state
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true);
 
-  const API_URL = 'http://e-commercewatch.onrender.com/api';
-
-  // ✅ CRITICAL: Rehydrate user from token on app load
   useEffect(() => {
-    const loadUser = async () => {
-      const storedToken = localStorage.getItem('token');
-      
-      if (!storedToken) {
-        setIsLoading(false);
-        return;
-      }
-      
-      setToken(storedToken);
-      
-      try {
-        const response = await axios.get(`${API_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${storedToken}`
-          }
-        });
-        
-        setUser(response.data.user);
-      } catch (error) {
-        console.error('Failed to load user:', error);
-        localStorage.removeItem('token');
-        setToken(null);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const storedToken = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
     
-    loadUser();
+    if (storedToken && userData) {
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-    
-    const { token, user: userData } = response.data;
-    
-    localStorage.setItem('token', token);
-    setToken(token);
-    setUser(userData);
-    
-    return userData;
+    try {
+      const data = await loginUser({ email, password });
+      
+      if (data.token && data.user) {
+        setToken(data.token);
+        setUser(data.user);
+        
+        // Sync guest cart to backend
+        await syncGuestCart(data.token);
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
-  const register = async (userData) => {
-    const response = await axios.post(`${API_URL}/auth/register`, userData);
-    
-    const { token, user: newUser } = response.data;
-    
-    localStorage.setItem('token', token);
-    setToken(token);
-    setUser(newUser);
-    
-    return newUser;
+  const signup = async (userData) => {
+    try {
+      const data = await registerUser(userData);
+      
+      if (data.token && data.user) {
+        setToken(data.token);
+        setUser(data.user);
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart');
     setToken(null);
     setUser(null);
   };
 
+  
+
   const value = {
     user,
     token,
-    isLoading,     // ✅ For initial auth check
-    isAuthenticated: !!user,
+    loading,
+    isAuthenticated: !!token && !!user,
     login,
-    register,
+    signup,
     logout,
   };
 
@@ -91,4 +90,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Export the context as default (for useAuth.js to import)
 export default AuthContext;

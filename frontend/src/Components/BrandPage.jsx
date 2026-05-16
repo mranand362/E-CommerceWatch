@@ -22,7 +22,7 @@ const BrandPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://e-commercewatch.onrender.com/api/products");
+        const response = await axios.get("https://e-commercewatch.onrender.com/api/products");
         setDbProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -45,7 +45,7 @@ const BrandPage = () => {
           return;
         }
         
-        const { data } = await axios.get("http://e-commercewatch.onrender.com/api/cart", {
+        const { data } = await axios.get("https://e-commercewatch.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -108,13 +108,13 @@ const BrandPage = () => {
         
         // ✅ Use MongoDB _id, NOT watch.id
         await axios.post(
-          "http://e-commercewatch.onrender.com/api/cart",
+          "https://e-commercewatch.onrender.com/api/cart",
           { productId: productId, quantity: qty },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         
         // Refresh cart from backend
-        const { data } = await axios.get("http://e-commercewatch.onrender.com/api/cart", {
+        const { data } = await axios.get("https://e-commercewatch.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCart(data.items || []);
