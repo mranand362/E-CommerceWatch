@@ -1,4 +1,3 @@
-// backend/src/routes/authRoutes.js
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -105,7 +104,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ✅ GET /api/auth/profile - Get current user profile
+// ✅ GET /api/auth/profile
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -129,7 +128,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// ✅ PUT /api/auth/profile - Update user profile
+// ✅ PUT /api/auth/profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
     const { firstName, lastName, phone } = req.body;
@@ -160,7 +159,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// ✅ GET /api/auth/me - Alias for /profile (for compatibility with AccountPage)
+// ✅ GET /api/auth/me
 router.get('/me', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
