@@ -33,11 +33,9 @@ const app = express();
 /* ---------------- CORS CONFIGURATION - FIXED FOR NETLIFY ---------------- */
 
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "http://localhost:5000",
-  "https://luxurytimewatch.netlify.app",
-  "https://e-commercewatch.onrender.com"
+ 
+  "https://e-commerce-watch-seven.vercel.app"
+ 
 ];
 
 // Main CORS middleware - handle everything in one place
