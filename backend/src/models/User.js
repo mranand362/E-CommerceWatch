@@ -17,8 +17,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Email is required'],
     unique: true,
     lowercase: true,
-    trim: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email']
+    trim: true
   },
   phone: {
     type: String,
@@ -46,7 +45,7 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
+// ✅ FIXED: Hash password before saving (Modern async/await)
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
@@ -61,7 +60,7 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Compare password method
+// ✅ Compare password method
 userSchema.methods.comparePassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
