@@ -9,16 +9,16 @@ import productRoutes from "./src/routes/productRoutes.js";
 import orderRoutes from "./src/routes/orderRoutes.js";
 import cartRoutes from "./src/routes/cartRoutes.js";
 
-import { errorHandler } from "./src/middleware/errorMiddleware.js";
+// ✅ IMPORT both error handlers
+import { errorHandler, notFound } from "./src/middleware/errorMiddleware.js";
 
 dotenv.config();
 
-// DNS fix for Render
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const app = express();
 
-// CORS configuration
+// CORS
 app.use(cors({
   origin: [
     "https://e-commerce-watch-seven.vercel.app",
@@ -28,7 +28,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,13 +36,12 @@ app.get("/cors-test", (req, res) => {
   res.json({ success: true, message: "CORS Working" });
 });
 
-// Routes
+// ✅ ROUTES - All routes here
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 
-// Root route
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Backend Running" });
 });
@@ -52,19 +50,20 @@ app.get("/api", (req, res) => {
   res.json({ success: true, message: "API Running" });
 });
 
-// Error handler (should be last)
+// ✅ 404 HANDLER - AFTER all routes
+app.use(notFound);
+
+// ✅ ERROR HANDLER - VERY LAST
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Database connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB Connected Successfully");
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
-      console.log(`📍 API URL: http://localhost:${PORT}/api`);
     });
   })
   .catch((err) => {
