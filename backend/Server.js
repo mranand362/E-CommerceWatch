@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import dns from "dns";
-import bodyParser from "body-parser";
 
 import authRoutes from "./src/routes/authRoutes.js";
 import productRoutes from "./src/routes/productRoutes.js";
@@ -14,73 +13,61 @@ import { errorHandler } from "./src/middleware/errorMiddleware.js";
 
 dotenv.config();
 
+// DNS fix for Render
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const app = express();
 
-/* ---------------- CORS FIX ---------------- */
-
+// CORS configuration
 app.use(cors({
   origin: [
     "https://e-commerce-watch-seven.vercel.app",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://localhost:3000"
   ],
   credentials: true
 }));
 
-/* ---------------- BODY PARSER ---------------- */
-
+// Body parsers
 app.use(express.json());
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
 
-/* ---------------- TEST ROUTE ---------------- */
-
+// Test route
 app.get("/cors-test", (req, res) => {
-  res.json({
-    success: true,
-    message: "CORS Working"
-  });
+  res.json({ success: true, message: "CORS Working" });
 });
 
-/* ---------------- ROUTES ---------------- */
-
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 
-/* ---------------- ROOT ---------------- */
-
+// Root route
 app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Backend Running"
-  });
+  res.json({ success: true, message: "Backend Running" });
 });
 
 app.get("/api", (req, res) => {
-  res.json({
-    success: true,
-    message: "API Running"
-  });
+  res.json({ success: true, message: "API Running" });
 });
 
-/* ---------------- ERROR HANDLER ---------------- */
-
+// Error handler (should be last)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+// Database connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB Connected");
-
+    console.log("✅ MongoDB Connected Successfully");
     app.listen(PORT, () => {
-      console.log(`Server running on ${PORT}`);
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`📍 API URL: http://localhost:${PORT}/api`);
     });
   })
   .catch((err) => {
-    console.log(err);
+    console.error("❌ MongoDB Connection Error:", err);
+    process.exit(1);
   });
